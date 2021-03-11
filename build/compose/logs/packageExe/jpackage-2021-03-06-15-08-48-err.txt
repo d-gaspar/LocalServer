@@ -1,0 +1,2 @@
+WARNING: Using incubator modules: jdk.incubator.jpackage
+java.lang.IllegalArgumentException: jdk.incubator.jpackage.internal.ConfigException: The configured main jar does not exist C:\Users\Daniel\IdeaProjects\LocalServer\build\compose\tmp\packageExe\libs\LocalServer-1.0.0-258329f9d76fc033cbe3af7b1f24ed4.jar in the input directory

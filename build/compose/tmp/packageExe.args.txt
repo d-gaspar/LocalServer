@@ -1,0 +1,17 @@
+--input
+"C:\\Users\\Daniel\\IdeaProjects\\LocalServer\\build\\compose\\tmp\\packageExe"
+--runtime-image
+"C:\\Users\\Daniel\\IdeaProjects\\LocalServer\\build\\compose\\tmp\\main\\runtime"
+--main-jar
+"C:\\Users\\Daniel\\IdeaProjects\\LocalServer\\build\\compose\\tmp\\packageExe\\libs\\LocalServer-1.0.0-27136d8d31c2aba6a58bbcaaf82f214.jar"
+--main-class
+"MainKt"
+--win-dir-chooser
+--type
+"exe"
+--dest
+"C:\\Users\\Daniel\\IdeaProjects\\LocalServer\\build\\out\\main\\exe"
+--name
+"LocalServer"
+--app-version
+"1.0.0"
