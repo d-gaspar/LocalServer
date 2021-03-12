@@ -2,16 +2,21 @@
 import androidx.compose.desktop.AppManager
 import androidx.compose.desktop.Window
 import androidx.compose.desktop.WindowEvents
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.material.Text
-import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.*
 
 // json - jackson
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -72,40 +77,124 @@ fun main(){
         )
     ) {
         // content
-        Box(
+        Column (
             modifier = Modifier
-            .fillMaxSize(),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                //.padding(10.dp)
+
+                //.absolutePadding(10.dp, 10.dp, 10.dp, 10.dp)
+                //contentAlignment = Alignment.Center
         ) {
-            Column (
-                modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
+            /***********************************************************************************/
+            /** TOP MENU */
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(ThemeColors.dark_grey)
+                    .padding(start = 10.dp, top = 50.dp, end = 10.dp, bottom = 10.dp),
+                verticalAlignment = Alignment.Bottom
             ) {
-                //Text(text = "Size: ${windowSize.value}")
+                Row (
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Server",
+                        bold = true,
+                        fontSize = 35.sp
+                    )
+                    //Text("Server status: ${serverStatus.value} (${jsonString.value})")
 
-                Text(text = "Server status: ${serverStatus.value} (${jsonString.value})")
-                Spacer(modifier = Modifier.width(10.dp).height(10.dp))
+                    // circle
+                    Box (
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape)
+                            .background(if (serverStatus.value == "off") Color.Red else Color.Green)
+                    )
+                }
+            }
 
-                Button("Start server", {
-                    println("START SERVER")
-                    server.run()
-                    serverStatus.value = "on"
-                })
+            /***********************************************************************************/
 
-                Button("Stop server", {
-                    println("STOP SERVER")
-                    server.shutdown()
-                    serverStatus.value = "off"
-                })
+            // body
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(ThemeColors.black),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-                Button("Refresh jsonString", {
-                    jsonString.value = server.json()
-                })
+                // left menu
+                Column (
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(10.dp)
+                        //.align(Alignment.CenterEnd)
+                ) {
 
+                    Button(
+                        if (serverStatus.value == "off") "Start server" else "Stop server",
+                    {
+                        if (serverStatus.value == "off") {
+                            println("START SERVER")
+                            server.run()
+                            serverStatus.value = "on"
+                        } else {
+                            println("STOP SERVER")
+                            server.shutdown()
+                            serverStatus.value = "off"
+                        }
+                    })
+
+                    Text("LEFT MENU\n\n\n\n ITEMS\n\n\n")
+
+                    Text("https://github.com/d-gaspar")
+                }
+
+                /*******************************************************************************/
+
+                // right menu
+                Column (
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(10.dp)
+                ) {
+                    //Text(text = "Size: ${windowSize.value}")
+
+                    Button(
+                        "Refresh jsonString",
+                        { jsonString.value = server.json() },
+                        height = 70.dp
+                    )
+                }
             }
         }
     }
 
     println("END FILE")
+}
+
+/***********************************************************************************************/
+
+@Composable
+fun Text(
+    text : String = "",
+    bold : Boolean = false,
+    fontSize : TextUnit = TextUnit.Unspecified
+) {
+    Text(
+        text = text,
+        color = ThemeColors.text,
+        fontSize = fontSize,
+        fontWeight = FontWeight(
+            if(bold) 700 else 400
+        )
+    )
+
+    // add margin
+    Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
 
 @Composable
@@ -117,7 +206,11 @@ fun Button(
 ) {
     Button(
         modifier = Modifier.size(width, height),
-        onClick = { action?.invoke() }
+        onClick = { action?.invoke() },
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = ThemeColors.buttonBackgroundOrange,
+            contentColor = ThemeColors.buttonText
+        )
     ) {
         Text(text)
     }
@@ -125,3 +218,15 @@ fun Button(
     // add margin
     Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
+/*
+@Composable
+fun Circle(color: Color,
+           modifier: Modifier = Modifier) {
+    Box(
+            modifier = modifier.composed {
+                Modifier.preferredSize(32.dp)
+                        .clip(CircleShape)
+                        .background(color)
+            }
+    )
+}*/
