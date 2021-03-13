@@ -4,6 +4,9 @@ import androidx.compose.ui.graphics.Color
 
 class ThemeColors {
     companion object {
+
+        @Stable
+        val light_grey = Color(0xFF353535)
         @Stable
         val dark_grey = Color(0xFF272727)
         @Stable

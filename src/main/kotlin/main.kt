@@ -29,6 +29,7 @@ import java.awt.AWTException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.InetAddress
 
 // server socket
 import java.net.ServerSocket
@@ -80,53 +81,62 @@ fun main(){
         Column (
             modifier = Modifier
                 .fillMaxSize()
-                //.padding(10.dp)
-
-                //.absolutePadding(10.dp, 10.dp, 10.dp, 10.dp)
-                //contentAlignment = Alignment.Center
         ) {
             /***********************************************************************************/
             /** TOP MENU */
-            Row (
+
+            Column (
                 modifier = Modifier
-                    .fillMaxWidth()
                     .background(ThemeColors.dark_grey)
-                    .padding(start = 10.dp, top = 50.dp, end = 10.dp, bottom = 10.dp),
-                verticalAlignment = Alignment.Bottom
+                    .padding(start = 10.dp, top = 50.dp, end = 10.dp, bottom = 10.dp)
             ) {
                 Row (
                     modifier = Modifier
                         .fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Bottom
                 ) {
-                    Text(
-                        text = "Server",
-                        bold = true,
-                        fontSize = 35.sp
-                    )
-                    //Text("Server status: ${serverStatus.value} (${jsonString.value})")
-
-                    // circle
-                    Box (
+                    Row (
                         modifier = Modifier
-                            .size(20.dp)
-                            .clip(CircleShape)
-                            .background(if (serverStatus.value == "off") Color.Red else Color.Green)
-                    )
+                            .fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        /** main title */
+                        Text(
+                            text = "Server",
+                            bold = true,
+                            fontSize = 35.sp
+                        )
+
+                        /** circle */
+                        Box(
+                            modifier = Modifier
+                                .size(20.dp)
+                                .clip(CircleShape)
+                                .background(if (serverStatus.value == "off") Color.Red else Color.Green)
+                        )
+                    }
+                }
+
+                /** IP */
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("IP: ${InetAddress.getLocalHost().hostAddress}")
                 }
             }
 
             /***********************************************************************************/
 
-            // body
+            /** BODY */
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(ThemeColors.black),
+                    .background(ThemeColors.light_grey),
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // left menu
+                /** LEFT MENU */
                 Column (
                     modifier = Modifier
                         .fillMaxHeight()
@@ -148,26 +158,33 @@ fun main(){
                         }
                     })
 
-                    Text("LEFT MENU\n\n\n\n ITEMS\n\n\n")
+                    Text("USERS")
+                    Text("CONTROLS")
+                    Text("LOG")
+                    Text("TAB 1")
+                    Text("TAB 2")
+                    Text("TAB 3")
 
                     Text("https://github.com/d-gaspar")
                 }
 
                 /*******************************************************************************/
 
-                // right menu
+                /** RIGHT BODY */
                 Column (
                     modifier = Modifier
-                        .fillMaxHeight()
+                        .fillMaxSize()
+                        //.fillMaxHeight()
+                        .background(ThemeColors.black)
                         .padding(10.dp)
                 ) {
                     //Text(text = "Size: ${windowSize.value}")
 
-                    Button(
+                    /*Button(
                         "Refresh jsonString",
                         { jsonString.value = server.json() },
                         height = 70.dp
-                    )
+                    )*/
                 }
             }
         }
