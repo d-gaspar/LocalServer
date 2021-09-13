@@ -45,12 +45,9 @@ class main {
 
 fun main(){
 
-    // ktor - netty
-    //var server = NettyServer()
-
     // server socket
-    val server = Server()
-
+    //val server = Server()
+/*
     // desktop compose
     println("START WINDOW")
     val windowSize = mutableStateOf(IntSize.Zero)
@@ -190,7 +187,7 @@ fun main(){
         }
     }
 
-    println("END FILE")
+    println("END FILE")*/
 }
 
 /***********************************************************************************************/
@@ -201,17 +198,17 @@ fun Text(
     bold : Boolean = false,
     fontSize : TextUnit = TextUnit.Unspecified
 ) {
-    Text(
+    /*Text(
         text = text,
         color = ThemeColors.text,
         fontSize = fontSize,
         fontWeight = FontWeight(
             if(bold) 700 else 400
         )
-    )
+    )*/
 
     // add margin
-    Spacer(modifier = Modifier.width(10.dp).height(10.dp))
+    //Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
 
 @Composable
@@ -221,7 +218,7 @@ fun Button(
     width : Dp = 150.dp,
     height : Dp = 50.dp
 ) {
-    Button(
+    /*Button(
         modifier = Modifier.size(width, height),
         onClick = { action?.invoke() },
         colors = ButtonDefaults.buttonColors(
@@ -230,10 +227,10 @@ fun Button(
         )
     ) {
         Text(text)
-    }
+    }*/
 
     // add margin
-    Spacer(modifier = Modifier.width(10.dp).height(10.dp))
+    //Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
 /*
 @Composable
