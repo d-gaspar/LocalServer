@@ -3,10 +3,12 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.30"
+    kotlin("jvm") version "1.5.30"
 
     // desktop compose
-    id("org.jetbrains.compose") version "0.3.0"
+    //id("org.jetbrains.compose") version "0.3.0"
+    id("org.jetbrains.compose") version "1.0.0-alpha4-build328" // 2021-08-28
+    //id("org.jetbrains.compose") version (System.getenv("COMPOSE_TEMPLATE_COMPOSE_VERSION") ?: "1.0.0-alpha4-build328")
 }
 
 group = "me.daniel"
@@ -14,47 +16,33 @@ version = "1.0.0"
 
 repositories {
     // desktop compose
-    jcenter()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 
-    // ktor - netty
-    maven("https://dl.bintray.com/kotlin/kotlinx")
-    maven("https://dl.bintray.com/kotlin/ktor")
     mavenCentral()
+    google()
 }
 
 dependencies {
     // desktop compose
     implementation(compose.desktop.currentOs)
 
-    // ktor - netty
-    implementation("io.ktor:ktor-server-core:1.5.2")
-    implementation("io.ktor:ktor-server-netty:1.5.2")
-
     // jackson - json
-    implementation("io.ktor:ktor-jackson:1.5.2")
+    implementation("io.ktor:ktor-jackson:1.6.3")
 
-    //https://stackabuse.com/reading-and-writing-json-in-kotlin-with-jackson/
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.0")
+    // https://stackabuse.com/reading-and-writing-json-in-kotlin-with-jackson/
+    //implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.5")
+    //implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-    implementation(kotlin("stdlib"))
-    //implementation("ch.qos.logback:logback-classic:1.2.3")
-
-    //implementation("io.ktor:ktor-html-builder:1.4.0")
-    //implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.21")
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
 }
 
 // desktop compose
 compose.desktop {
     application {
-        //disableDefaultConfiguration()
-        //fromFiles(project.fileTree("libs/") { include("**/*.jar") })
-        //mainJar.set(project.file("main.jar"))
-        //dependsOn("mainJarTask")
 
         mainClass = "MainKt"
 

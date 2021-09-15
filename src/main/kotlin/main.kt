@@ -1,22 +1,24 @@
 // desktop compose
-import androidx.compose.desktop.AppManager
-import androidx.compose.desktop.Window
+import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.desktop.WindowEvents
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.Modifier
-import androidx.compose.runtime.Composable
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.rememberWindowState
 
 // json - jackson
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -34,53 +36,46 @@ import java.net.InetAddress
 // server socket
 import java.net.ServerSocket
 
-class main {
-    private var aaa : Int = 0
-
-    constructor(aaa : Int){
-        this.aaa = aaa
-        println("AAAAA")
-    }
-}
-
-fun main(){
+fun main() = application {
 
     // server socket
-    //val server = Server()
-/*
-    // desktop compose
+    val server = Server()
+
     println("START WINDOW")
+    val windowState = rememberWindowState()
     val windowSize = mutableStateOf(IntSize.Zero)
     val serverStatus = mutableStateOf("off")
     val jsonString = mutableStateOf("")
     Window (
-        title = "Local Server 0.1",
-        events = WindowEvents(
-            onResize = {
-                size -> windowSize.value = size
-            },
-            onClose = {
-                println("WINDOW CLOSE")
-                //server.stop() // nettyServer
-                println("WINDOW CLOSED")
-            },
-            onFocusGet = {
-                println("FOCUS GET")
-                server.keyboardEnable(false)
-            },
-            onFocusLost = {
-                println("FOCUS LOST")
-                server.keyboardEnable(true)
-            }
-        )
+        state = windowState,
+        onCloseRequest = { println("close"); exitApplication() },//::exitApplication,
+        title = "Local Server 0.1"
     ) {
-        // content
+        /** resize event */
+        /*LaunchedEffect(windowState) {
+            snapshotFlow { windowState.size }
+                .onEach { /*println("resize")*/ }
+                .launchIn(this)
+        }*/
+
+        /** focus event */
+        // PENDENT
+
+        /***************************************************************************************/
+        /***************************************************************************************/
+        /***************************************************************************************/
+        /***************************************************************************************/
+        /***************************************************************************************/
+
+        /** CONTENT */
         Column (
             modifier = Modifier
                 .fillMaxSize()
+                .background(ThemeColors.light_grey)
         ) {
             /***********************************************************************************/
             /** TOP MENU */
+            /***********************************************************************************/
 
             Column (
                 modifier = Modifier
@@ -138,22 +133,22 @@ fun main(){
                     modifier = Modifier
                         .fillMaxHeight()
                         .padding(10.dp)
-                        //.align(Alignment.CenterEnd)
+                    //.align(Alignment.CenterEnd)
                 ) {
 
                     Button(
                         if (serverStatus.value == "off") "Start server" else "Stop server",
-                    {
-                        if (serverStatus.value == "off") {
-                            println("START SERVER")
-                            server.run()
-                            serverStatus.value = "on"
-                        } else {
-                            println("STOP SERVER")
-                            server.shutdown()
-                            serverStatus.value = "off"
-                        }
-                    })
+                        {
+                            if (serverStatus.value == "off") {
+                                println("START SERVER")
+                                server.run()
+                                serverStatus.value = "on"
+                            } else {
+                                println("STOP SERVER")
+                                server.shutdown()
+                                serverStatus.value = "off"
+                            }
+                        })
 
                     Text("USERS")
                     Text("CONTROLS")
@@ -186,8 +181,6 @@ fun main(){
             }
         }
     }
-
-    println("END FILE")*/
 }
 
 /***********************************************************************************************/
@@ -198,17 +191,17 @@ fun Text(
     bold : Boolean = false,
     fontSize : TextUnit = TextUnit.Unspecified
 ) {
-    /*Text(
+    Text(
         text = text,
         color = ThemeColors.text,
         fontSize = fontSize,
         fontWeight = FontWeight(
             if(bold) 700 else 400
         )
-    )*/
+    )
 
     // add margin
-    //Spacer(modifier = Modifier.width(10.dp).height(10.dp))
+    Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
 
 @Composable
@@ -218,7 +211,7 @@ fun Button(
     width : Dp = 150.dp,
     height : Dp = 50.dp
 ) {
-    /*Button(
+    Button(
         modifier = Modifier.size(width, height),
         onClick = { action?.invoke() },
         colors = ButtonDefaults.buttonColors(
@@ -227,10 +220,10 @@ fun Button(
         )
     ) {
         Text(text)
-    }*/
+    }
 
     // add margin
-    //Spacer(modifier = Modifier.width(10.dp).height(10.dp))
+    Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
 /*
 @Composable
@@ -238,7 +231,8 @@ fun Circle(color: Color,
            modifier: Modifier = Modifier) {
     Box(
             modifier = modifier.composed {
-                Modifier.preferredSize(32.dp)
+                //Modifier.preferredSize(32.dp)
+                Modifier.defaultMinSize(32.dp)
                         .clip(CircleShape)
                         .background(color)
             }

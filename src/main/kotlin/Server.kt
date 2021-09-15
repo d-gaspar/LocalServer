@@ -3,20 +3,12 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.BufferedOutputStream
 import java.io.OutputStream
-import java.io.OutputStreamWriter
-import java.io.Writer
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketException
 import java.nio.charset.Charset
 import java.util.*
-import kotlin.concurrent.thread
-
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.InetAddress
 
 val mapper = jacksonObjectMapper()
 
@@ -91,10 +83,10 @@ class Server {
         while (connected) {
             println("OK-clientReaderHandler")
 
-            writer = client?.getOutputStream()
+            writer = client.getOutputStream()
             writer?.write("Welcome_to_server\n".toByteArray(Charset.defaultCharset()))
 
-            reader = Scanner(client?.getInputStream())
+            reader = Scanner(client.getInputStream())
             try {
                 jsonString = reader?.nextLine().toString()
                 println("INPUT: $jsonString")
