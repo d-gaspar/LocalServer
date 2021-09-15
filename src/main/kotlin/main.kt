@@ -3,22 +3,28 @@ import androidx.compose.desktop.DesktopMaterialTheme
 import androidx.compose.desktop.WindowEvents
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.*
+import androidx.compose.material.TextFieldDefaults.outlinedTextFieldColors
+import androidx.compose.material.TextFieldDefaults.textFieldColors
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.Window
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.text.style.TextAlign
 
 // json - jackson
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -31,6 +37,8 @@ import java.awt.AWTException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.awt.event.WindowEvent
+import java.awt.event.WindowFocusListener
 import java.net.InetAddress
 
 // server socket
@@ -40,12 +48,13 @@ fun main() = application {
 
     // server socket
     val server = Server()
+    var pass by remember { mutableStateOf("123456") }
 
     println("START WINDOW")
     val windowState = rememberWindowState()
-    val windowSize = mutableStateOf(IntSize.Zero)
+    //val windowSize = mutableStateOf(IntSize.Zero)
     val serverStatus = mutableStateOf("off")
-    val jsonString = mutableStateOf("")
+    //val jsonString = mutableStateOf("")
     Window (
         state = windowState,
         onCloseRequest = { println("close"); exitApplication() },//::exitApplication,
@@ -60,6 +69,20 @@ fun main() = application {
 
         /** focus event */
         // PENDENT
+        DisposableEffect(Unit) {
+            window.addWindowFocusListener(object : WindowFocusListener {
+                override fun windowGainedFocus(e: WindowEvent) {
+                    println("FOCUS GAINED")
+                    server.keyboardEnable(false)
+                }
+
+                override fun windowLostFocus(e: WindowEvent) {
+                    println("FOCUS LOST")
+                    server.keyboardEnable(true)
+                }
+            })
+            onDispose {}
+        }
 
         /***************************************************************************************/
         /***************************************************************************************/
@@ -93,7 +116,7 @@ fun main() = application {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         /** main title */
-                        Text(
+                        text(
                             text = "Server",
                             bold = true,
                             fontSize = 35.sp
@@ -114,12 +137,69 @@ fun main() = application {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("IP: ${InetAddress.getLocalHost().hostAddress}")
+                    button(
+                        if (serverStatus.value == "off") "Start" else "Stop",
+                        {
+                            if (serverStatus.value == "off") {
+                                println("START")
+                                server.run()
+                                serverStatus.value = "on"
+                            } else {
+                                println("STOP")
+                                server.shutdown()
+                                serverStatus.value = "off"
+                            }
+                        }
+                    )
+
+                    Column (
+                    ) {
+                        text("IP: ${InetAddress.getLocalHost().hostAddress}")
+
+                        Row (
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            text("Pass: ", addMargin = false)
+
+                            BasicTextField(
+                                value = pass,
+                                onValueChange = { pass = it },
+                                modifier = Modifier
+                                    .background(Color.Black)
+                                    .width(50.dp)
+                                    .padding(2.dp)
+                                    ,
+                                singleLine = true,
+                                textStyle = TextStyle(
+                                    color = ThemeColors.text,
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                        }
+                    }
                 }
             }
 
             /***********************************************************************************/
 
+            /** PLAYERS */
+
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(ThemeColors.light_grey)
+            ) {
+                players("PLAYER 1")
+                players("PLAYER 2")
+                players("PLAYER 3")
+                players("PLAYER 4")
+                players("PLAYER 5")
+                players("PLAYER 6")
+            }
+
+            /***********************************************************************************/
+
+            /*
             /** BODY */
             Row (
                 modifier = Modifier
@@ -178,7 +258,7 @@ fun main() = application {
                         height = 70.dp
                     )*/
                 }
-            }
+            }*/
         }
     }
 }
@@ -186,10 +266,11 @@ fun main() = application {
 /***********************************************************************************************/
 
 @Composable
-fun Text(
+fun text (
     text : String = "",
     bold : Boolean = false,
-    fontSize : TextUnit = TextUnit.Unspecified
+    fontSize : TextUnit = TextUnit.Unspecified,
+    addMargin : Boolean = true
 ) {
     Text(
         text = text,
@@ -201,11 +282,11 @@ fun Text(
     )
 
     // add margin
-    Spacer(modifier = Modifier.width(10.dp).height(10.dp))
+    if(addMargin) Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
 
 @Composable
-fun Button(
+fun button (
     text : String = "",
     action : (() -> Unit)? = null,
     width : Dp = 150.dp,
@@ -219,12 +300,43 @@ fun Button(
             contentColor = ThemeColors.buttonText
         )
     ) {
-        Text(text)
+        Text(text, fontSize = 20.sp,fontWeight = FontWeight(700))
     }
 
     // add margin
     Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
+
+@Composable
+fun RowScope.players (
+    title : String = "PLAYER X"
+) {
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .background(ThemeColors.black)
+            .weight(1f)
+            .border(2.dp, Color.DarkGray)
+            .padding(5.dp)
+    ) {
+        // title
+        Row (
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            text(title)
+
+            /** circle */
+            Box(
+                modifier = Modifier
+                    .size(10.dp)
+                    .clip(CircleShape)
+                    .background(if ("off" == "off") Color.Red else Color.Green)
+            )
+        }
+
+    }
+}
+
 /*
 @Composable
 fun Circle(color: Color,
