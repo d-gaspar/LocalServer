@@ -9,24 +9,16 @@ import java.awt.AWTException
 import java.awt.Robot
 import java.awt.event.KeyEvent
 
-// basic keyboard
-data class BasicKeyboard (
-    val key : String,
-    val action : String
-    //val vertical : Float,
-    //val horizontal : Float
-)
-
 class Keyboard {
     private var active : Boolean = false
     private var sleep : Long = 10 // milliseconds
     private var robot : Robot = Robot()
     private var key : String = ""
-    private var action : String = ""
+    private var value : String = ""
 
-    fun addKey(key : String, action : String) {
+    fun addKey(key : String, value : String) {
         this.key = key
-        this.action = action
+        this.value = value
     }
 
     fun enable() {
@@ -49,8 +41,8 @@ class Keyboard {
             try {
 
                 var keyEvent : Int = 0
-                if (key.isNotEmpty()) {
-                    when (key) {
+                if (value.isNotEmpty()) {
+                    when (value) {
                         "LEFT" -> keyEvent = KeyEvent.VK_LEFT
                         "UP" -> keyEvent = KeyEvent.VK_UP
                         "RIGHT" -> keyEvent = KeyEvent.VK_RIGHT
@@ -63,7 +55,7 @@ class Keyboard {
                     robot.keyPress(keyEvent)
                     robot.keyRelease(keyEvent)
                     key = ""
-                    action = ""
+                    value = ""
 
                     /*
                     // keyPress when DOWN, keyRelease when UP

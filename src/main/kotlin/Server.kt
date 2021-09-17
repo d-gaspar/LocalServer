@@ -3,6 +3,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.io.OutputStream
 import java.net.ServerSocket
 import java.net.Socket
@@ -12,11 +13,17 @@ import java.util.*
 
 val mapper = jacksonObjectMapper()
 
+data class JsonData (
+    val key : String,
+    val value : String
+)
+
 class Server {
     private var server : ServerSocket? = null
     private var running : Boolean = false
     private var jsonString : String = ""
     public var port : Int = 8080
+    public var pass : String = "123456"
 
     var reader : Scanner? = null
     var writer : OutputStream? = null
@@ -26,12 +33,13 @@ class Server {
 
     /*******************************************************************************************/
 
-    fun run() {
+    fun run(pass : String = "123456") {
         // return if server is already running
         if (running) return
 
         server = ServerSocket(port)
-        println("Server if running (port: ${server!!.localPort})")
+        this.pass = pass
+        println("Server if running (port: ${server!!.localPort}, pass: $pass)")
         running = true
 
         // read inputs
@@ -80,15 +88,39 @@ class Server {
     private fun clientReaderHandler(client : Socket) {
         var connected : Boolean = true
 
+        reader = Scanner(client.getInputStream())
+        writer = client.getOutputStream()
+
+        // check password
+        var jsonStringPass : String = ""
+        try {
+            jsonStringPass = reader?.nextLine().toString()
+
+            if (jsonStringPass.isNotEmpty()) {
+                var jsonPass : JsonData = mapper.readValue(jsonStringPass)
+
+                if (jsonPass.key != "pass" || jsonPass.value != this.pass) {
+                    connected = false
+                    //writer?.write("Wrong password\n".toByteArray(Charset.defaultCharset()))
+                    sendJson("{\"key\":\"pass\",\"value\":\"false\"}\n", client)
+                }
+            }
+        } catch (e : Exception) {
+            connected = false
+            //e.printStackTrace()
+        }
+
+        //writer?.write("Welcome_to_server\n".toByteArray(Charset.defaultCharset()))
+        if (connected) {
+            sendJson("{\"key\":\"pass\",\"value\":\"true\"}\n", client)
+        }
+
         while (connected) {
             println("OK-clientReaderHandler")
 
-            writer = client.getOutputStream()
-            writer?.write("Welcome_to_server\n".toByteArray(Charset.defaultCharset()))
-
-            reader = Scanner(client.getInputStream())
             try {
                 jsonString = reader?.nextLine().toString()
+
                 println("INPUT: $jsonString")
             } catch (e : Exception) {
                 connected = false
@@ -101,16 +133,34 @@ class Server {
 
     /*******************************************************************************************/
 
+    fun sendJson (json : String, client : Socket) {
+        //CoroutineScope(Dispatchers.IO).launch {
+        try {
+            println("sendJson: $json")
+            writer = client.getOutputStream()
+            val input = readLine() ?: ""
+            writer?.write(json.toByteArray(Charset.defaultCharset()))
+            writer?.flush()
+            //writer?.close()
+
+        } catch (e : IOException) {
+            e.printStackTrace()
+        }
+        //}
+    }
+
+    /*******************************************************************************************/
+
     private fun executeCommands() {
         while(running) {
 
             if (jsonString.isNotEmpty()) {
-                val basicKeyboard : BasicKeyboard = mapper.readValue(jsonString)
+                val jsonData : JsonData = mapper.readValue(jsonString)
 
-                if(basicKeyboard.key.isEmpty()) {
+                if(jsonData.key.isEmpty()) {
                     keyboard.addKey("", "")
                 } else {
-                    keyboard.addKey(basicKeyboard.key, basicKeyboard.action)
+                    keyboard.addKey(jsonData.key, jsonData.value)
                 }
 
                 jsonString = ""

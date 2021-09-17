@@ -1,17 +1,14 @@
-// desktop compose
-import androidx.compose.desktop.DesktopMaterialTheme
-import androidx.compose.desktop.WindowEvents
-import androidx.compose.desktop.ui.tooling.preview.Preview
+/**
+ * author: https://github.com/d-gaspar
+ *
+ */
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
-import androidx.compose.material.TextFieldDefaults.outlinedTextFieldColors
-import androidx.compose.material.TextFieldDefaults.textFieldColors
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
@@ -19,11 +16,11 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.*
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 
 // json - jackson
@@ -43,12 +40,14 @@ import java.net.InetAddress
 
 // server socket
 import java.net.ServerSocket
+import java.util.*
 
 fun main() = application {
 
     // server socket
     val server = Server()
     var pass by remember { mutableStateOf("123456") }
+    var passLength : Int = 6
 
     println("START WINDOW")
     val windowState = rememberWindowState()
@@ -103,7 +102,7 @@ fun main() = application {
             Column (
                 modifier = Modifier
                     .background(ThemeColors.dark_grey)
-                    .padding(start = 10.dp, top = 50.dp, end = 10.dp, bottom = 10.dp)
+                    .padding(start = 10.dp, top = 40.dp, end = 10.dp, bottom = 10.dp)
             ) {
                 Row (
                     modifier = Modifier
@@ -134,7 +133,7 @@ fun main() = application {
 
                 /** IP */
                 Row (
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     button(
@@ -142,7 +141,7 @@ fun main() = application {
                         {
                             if (serverStatus.value == "off") {
                                 println("START")
-                                server.run()
+                                server.run(pass)
                                 serverStatus.value = "on"
                             } else {
                                 println("STOP")
@@ -161,23 +160,29 @@ fun main() = application {
                         ) {
                             text("Pass: ", addMargin = false)
 
-                            BasicTextField(
+                            BasicTextField (
                                 value = pass,
-                                onValueChange = { pass = it },
-                                modifier = Modifier
-                                    .background(Color.Black)
-                                    .width(50.dp)
-                                    .padding(2.dp)
-                                    ,
+                                onValueChange = {
+                                    if (it.length <= passLength && it.matches("^[a-zA-Z0-9]*$".toRegex())) {
+                                        pass = it
+                                    }
+                                },
+                                enabled = serverStatus.value=="off",
                                 singleLine = true,
                                 textStyle = TextStyle(
                                     color = ThemeColors.text,
-                                    textAlign = TextAlign.Center
-                                )
+                                    textAlign = TextAlign.Left
+                                ),
+                                modifier = Modifier
+                                    .background(if (serverStatus.value=="off") Color.Black else Color.Transparent)
+                                    .width(60.dp)
+                                    .padding(2.dp)
                             )
                         }
                     }
                 }
+
+                text("https://github.com/d-gaspar", addMargin = false)
             }
 
             /***********************************************************************************/
@@ -189,76 +194,13 @@ fun main() = application {
                     .fillMaxWidth()
                     .background(ThemeColors.light_grey)
             ) {
-                players("PLAYER 1")
-                players("PLAYER 2")
-                players("PLAYER 3")
-                players("PLAYER 4")
-                players("PLAYER 5")
-                players("PLAYER 6")
+                players("PLAYER 1", "wadsvb".toCharArray(), playerColor = ThemeColors.player1)
+                players("PLAYER 2", "5132op".toCharArray(), playerColor = ThemeColors.player2)
+                players("PLAYER 3", playerColor = ThemeColors.player3)
+                players("PLAYER 4", playerColor = ThemeColors.player4)
+                players("PLAYER 5", playerColor = ThemeColors.player5)
+                players("PLAYER 6", playerColor = ThemeColors.player6)
             }
-
-            /***********************************************************************************/
-
-            /*
-            /** BODY */
-            Row (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(ThemeColors.light_grey),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-
-                /** LEFT MENU */
-                Column (
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(10.dp)
-                    //.align(Alignment.CenterEnd)
-                ) {
-
-                    Button(
-                        if (serverStatus.value == "off") "Start server" else "Stop server",
-                        {
-                            if (serverStatus.value == "off") {
-                                println("START SERVER")
-                                server.run()
-                                serverStatus.value = "on"
-                            } else {
-                                println("STOP SERVER")
-                                server.shutdown()
-                                serverStatus.value = "off"
-                            }
-                        })
-
-                    Text("USERS")
-                    Text("CONTROLS")
-                    Text("LOG")
-                    Text("TAB 1")
-                    Text("TAB 2")
-                    Text("TAB 3")
-
-                    Text("https://github.com/d-gaspar")
-                }
-
-                /*******************************************************************************/
-
-                /** RIGHT BODY */
-                Column (
-                    modifier = Modifier
-                        .fillMaxSize()
-                        //.fillMaxHeight()
-                        .background(ThemeColors.black)
-                        .padding(10.dp)
-                ) {
-                    //Text(text = "Size: ${windowSize.value}")
-
-                    /*Button(
-                        "Refresh jsonString",
-                        { jsonString.value = server.json() },
-                        height = 70.dp
-                    )*/
-                }
-            }*/
         }
     }
 }
@@ -285,6 +227,8 @@ fun text (
     if(addMargin) Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
 
+/***********************************************************************************************/
+
 @Composable
 fun button (
     text : String = "",
@@ -307,25 +251,50 @@ fun button (
     Spacer(modifier = Modifier.width(10.dp).height(10.dp))
 }
 
+/***********************************************************************************************/
+
 @Composable
 fun RowScope.players (
-    title : String = "PLAYER X"
+    title : String = "PLAYER X",
+    defaultKeys : CharArray = "wasdvb".toCharArray(),
+    playerColor : Color = Color.Black
 ) {
+    var keyUp by remember { mutableStateOf(defaultKeys[0].toString()) }
+    var keyLeft by remember { mutableStateOf(defaultKeys[1].toString()) }
+    var keyRight by remember { mutableStateOf(defaultKeys[2].toString()) }
+    var keyDown by remember { mutableStateOf(defaultKeys[3].toString()) }
+    var keyA by remember { mutableStateOf(defaultKeys[4].toString()) }
+    var keyB by remember { mutableStateOf(defaultKeys[5].toString()) }
+
+    var modifierTextFieldColumn : Modifier = Modifier
+        .weight(1f)
+        .fillMaxSize()
+        .background(Color.DarkGray)
+
+    var modifierTextField : Modifier = Modifier
+        .padding(2.dp)
+
+    var styleTextField : TextStyle = TextStyle (
+        color = ThemeColors.text,
+        textAlign = TextAlign.Center
+    )
+
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .background(ThemeColors.black)
+            .background(Color.Black)
             .weight(1f)
             .border(2.dp, Color.DarkGray)
             .padding(5.dp)
+            .height(150.dp)
     ) {
-        // title
+        /** title */
         Row (
             verticalAlignment = Alignment.CenterVertically
         ) {
             text(title)
 
-            /** circle */
+            // circle
             Box(
                 modifier = Modifier
                     .size(10.dp)
@@ -334,8 +303,170 @@ fun RowScope.players (
             )
         }
 
+        // margin between title and body of player
+        Spacer(modifier = Modifier.height(10.dp))
+
+        /***************************************************************************************/
+        /** keys */
+        Row (
+            modifier = Modifier.background(playerColor).border(2.dp, playerColor)
+        ) {
+            /** left keys */
+            Column (
+                modifier = Modifier
+                    .weight(3f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                /** top */
+                Row (
+                    modifier = Modifier
+                        .weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text("", modifier = Modifier.weight(1f))
+
+                    Column (
+                        modifier = modifierTextFieldColumn,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        BasicTextField (
+                            value = keyUp,
+                            onValueChange = {keyUp = keyValueChange(keyUp, it)},
+                            textStyle = styleTextField,
+                            modifier = modifierTextField
+                        )
+                    }
+
+                    Text("", modifier = Modifier.weight(1f))
+                }
+
+                /** middle */
+                Row (modifier = Modifier.weight(1f)) {
+                    Column (
+                        modifier = modifierTextFieldColumn,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        BasicTextField (
+                            value = keyLeft,
+                            onValueChange = {keyLeft = keyValueChange(keyLeft, it)},
+                            textStyle = styleTextField,
+                            modifier = modifierTextField
+                        )
+                    }
+
+                    Text("", modifier = Modifier.weight(1f))
+
+                    Column (
+                        modifier = modifierTextFieldColumn,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        BasicTextField (
+                            value = keyRight,
+                            onValueChange = {keyRight = keyValueChange(keyRight, it)},
+                            textStyle = styleTextField,
+                            modifier = modifierTextField
+                        )
+                    }
+                }
+
+                /** bottom */
+                Row (modifier = Modifier.weight(1f)) {
+                    Text("", modifier = Modifier.weight(1f))
+
+                    Column (
+                        modifier = modifierTextFieldColumn,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        BasicTextField (
+                            value = keyDown,
+                            onValueChange = {keyDown = keyValueChange(keyDown, it)},
+                            textStyle = styleTextField,
+                            modifier = modifierTextField
+                        )
+                    }
+
+                    Text("", modifier = Modifier.weight(1f))
+                }
+            }
+
+            /***********************************************************************************/
+            /** right keys */
+            Column (
+                modifier = Modifier
+                    .weight(2f)
+            ) {
+                /** top */
+                Row (
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    Text("", modifier = Modifier.weight(1f))
+
+                    Column (
+                        modifier = modifierTextFieldColumn,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        BasicTextField (
+                            value = keyA,
+                            onValueChange = {keyA = keyValueChange(keyA, it)},
+                            textStyle = styleTextField,
+                            modifier = modifierTextField
+                        )
+                    }
+                }
+
+                /** middle */
+                Row (modifier = Modifier.weight(1f)) {}
+
+                /** bottom */
+                Row (
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    Text("", modifier = Modifier.weight(1f))
+
+                    Column (
+                        modifier = modifierTextFieldColumn,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        BasicTextField (
+                            value = keyB,
+                            onValueChange = {keyB = keyValueChange(keyB, it)},
+                            textStyle = styleTextField,
+                            modifier = modifierTextField
+                        )
+                    }
+                }
+            }
+        }
     }
 }
+
+fun keyValueChange (
+    key : String = "",
+    newKey : String = ""
+) : String {
+    var aux = newKey.replace(key, "").lowercase(Locale.getDefault())
+
+    aux = Regex("[^a-z0-9]").replace(aux, "")
+
+    if (aux.isNotEmpty() && aux.matches("^[a-z0-9]*$".toRegex())) {
+        return aux.last().toString()
+    } else if (!aux.matches("^[a-z0-9]*$".toRegex())) {
+        return ""
+    }
+
+    return key
+}
+
+/***********************************************************************************************/
 
 /*
 @Composable

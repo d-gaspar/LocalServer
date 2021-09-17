@@ -2,6 +2,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 //import java.awt.Color
 
+// https://css-tricks.com/8-digit-hex-codes/ << 8 digit hexadecimal color
+
 class ThemeColors {
     companion object {
 
@@ -21,5 +23,34 @@ class ThemeColors {
         val buttonText = Color(0xFF272727)
         @Stable
         val buttonBackgroundOrange = Color(0xBFf16913)
+
+        /*
+        @Stable
+        val player1 = Color(0xFFfb6a4a) // red
+        @Stable
+        val player2 = Color(0xFFfc8d62) // green
+        @Stable
+        val player3 = Color(0xFF8da0cb) // blue
+        @Stable
+        val player4 = Color(0xFFe78ac3) // yellow
+        @Stable
+        val player5 = Color(0xFFa6d854) // orange
+        @Stable
+        val player6 = Color(0xFFffd92f) // gray
+        */
+
+
+        @Stable
+        val player1 = Color(0xFFfb6a4a) // red
+        @Stable
+        val player2 = Color(0xFF74c476) // green
+        @Stable
+        val player3 = Color(0xFF43a2ca) // blue
+        @Stable
+        val player4 = Color(0xFFffd92f) // yellow
+        @Stable
+        val player5 = Color(0xFFfd8d3c) // orange
+        @Stable
+        val player6 = Color(0xFF969696) // gray
     }
 }
