@@ -41,16 +41,23 @@ class ThemeColors {
 
 
         @Stable
-        val player1 = Color(0xFFfb6a4a) // red
+        val playerColorList = arrayListOf<Color>(
+            Color(0xFFfb6a4a), // red
+            Color(0xFF74c476), // green
+            Color(0xFF43a2ca), // blue
+            Color(0xFFffd92f), // yellow
+            Color(0xFFfd8d3c), // orange
+            Color(0xFF969696)  // gray
+        )
+
         @Stable
-        val player2 = Color(0xFF74c476) // green
-        @Stable
-        val player3 = Color(0xFF43a2ca) // blue
-        @Stable
-        val player4 = Color(0xFFffd92f) // yellow
-        @Stable
-        val player5 = Color(0xFFfd8d3c) // orange
-        @Stable
-        val player6 = Color(0xFF969696) // gray
+        val playerColorHexList = arrayListOf<String>(
+            "#fb6a4a", // red
+            "#74c476", // green
+            "#43a2ca", // blue
+            "#ffd92f", // yellow
+            "#fd8d3c", // orange
+            "#969696"  // gray
+        )
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toUpperCase
 
 // json - jackson
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -34,8 +35,10 @@ import java.awt.AWTException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
+import java.io.IOException
 import java.net.InetAddress
 
 // server socket
@@ -194,12 +197,12 @@ fun main() = application {
                     .fillMaxWidth()
                     .background(ThemeColors.light_grey)
             ) {
-                players("PLAYER 1", "wadsvb".toCharArray(), playerColor = ThemeColors.player1)
-                players("PLAYER 2", "5132op".toCharArray(), playerColor = ThemeColors.player2)
-                players("PLAYER 3", playerColor = ThemeColors.player3)
-                players("PLAYER 4", playerColor = ThemeColors.player4)
-                players("PLAYER 5", playerColor = ThemeColors.player5)
-                players("PLAYER 6", playerColor = ThemeColors.player6)
+                players(0, "WADSVB".toCharArray())
+                players(1, "5132OP".toCharArray())
+                players(2)
+                players(3)
+                players(4)
+                players(5)
             }
         }
     }
@@ -255,16 +258,35 @@ fun button (
 
 @Composable
 fun RowScope.players (
-    title : String = "PLAYER X",
-    defaultKeys : CharArray = "wasdvb".toCharArray(),
-    playerColor : Color = Color.Black
+    playerIndex : Int = 0,
+    defaultKeys : CharArray = "WADSVB".toCharArray(),
+    playerColor : Color = if (playerIndex < ThemeColors.playerColorList.size) ThemeColors.playerColorList[playerIndex] else Color.Black
 ) {
+    if (defaultKeys.size != 6) throw IOException("main.kt:playersFunction> defaultKeys must have size=6")
+
+    // top key
     var keyUp by remember { mutableStateOf(defaultKeys[0].toString()) }
+
+    // middle key
     var keyLeft by remember { mutableStateOf(defaultKeys[1].toString()) }
     var keyRight by remember { mutableStateOf(defaultKeys[2].toString()) }
+
+    // bottom key
     var keyDown by remember { mutableStateOf(defaultKeys[3].toString()) }
+
+    // right keys
     var keyA by remember { mutableStateOf(defaultKeys[4].toString()) }
     var keyB by remember { mutableStateOf(defaultKeys[5].toString()) }
+
+    // add keys to Keyboard class (playerCommands)
+    if (playerIndex !in playerCommands.keys) {
+        playerCommands[playerIndex] = hashMapOf()
+        for (i in 0 until 6) {
+            playerCommands[playerIndex]!![inputCommands[i]] = mutableStateOf(
+                if (defaultKeys.size > i) defaultKeys[i].toString() else ""
+            )
+        }
+    }
 
     var modifierTextFieldColumn : Modifier = Modifier
         .weight(1f)
@@ -292,7 +314,7 @@ fun RowScope.players (
         Row (
             verticalAlignment = Alignment.CenterVertically
         ) {
-            text(title)
+            text("PLAYER ${playerIndex+1}")
 
             // circle
             Box(
@@ -332,7 +354,10 @@ fun RowScope.players (
                     ) {
                         BasicTextField (
                             value = keyUp,
-                            onValueChange = {keyUp = keyValueChange(keyUp, it)},
+                            onValueChange = {
+                                keyUp = keyValueChange(keyUp, it)
+                                playerCommands[playerIndex]!!["UP"]!!.value = keyUp
+                            },
                             textStyle = styleTextField,
                             modifier = modifierTextField
                         )
@@ -349,7 +374,10 @@ fun RowScope.players (
                     ) {
                         BasicTextField (
                             value = keyLeft,
-                            onValueChange = {keyLeft = keyValueChange(keyLeft, it)},
+                            onValueChange = {
+                                keyLeft = keyValueChange(keyLeft, it)
+                                playerCommands[playerIndex]!!["LEFT"]!!.value = keyLeft
+                            },
                             textStyle = styleTextField,
                             modifier = modifierTextField
                         )
@@ -363,7 +391,10 @@ fun RowScope.players (
                     ) {
                         BasicTextField (
                             value = keyRight,
-                            onValueChange = {keyRight = keyValueChange(keyRight, it)},
+                            onValueChange = {
+                                keyRight = keyValueChange(keyRight, it)
+                                playerCommands[playerIndex]!!["RIGHT"]!!.value = keyRight
+                            },
                             textStyle = styleTextField,
                             modifier = modifierTextField
                         )
@@ -380,7 +411,10 @@ fun RowScope.players (
                     ) {
                         BasicTextField (
                             value = keyDown,
-                            onValueChange = {keyDown = keyValueChange(keyDown, it)},
+                            onValueChange = {
+                                keyDown = keyValueChange(keyDown, it)
+                                playerCommands[playerIndex]!!["DOWN"]!!.value = keyDown
+                            },
                             textStyle = styleTextField,
                             modifier = modifierTextField
                         )
@@ -412,7 +446,10 @@ fun RowScope.players (
                     ) {
                         BasicTextField (
                             value = keyA,
-                            onValueChange = {keyA = keyValueChange(keyA, it)},
+                            onValueChange = {
+                                keyA = keyValueChange(keyA, it)
+                                playerCommands[playerIndex]!!["A"]!!.value = keyA
+                            },
                             textStyle = styleTextField,
                             modifier = modifierTextField
                         )
@@ -438,7 +475,10 @@ fun RowScope.players (
                     ) {
                         BasicTextField (
                             value = keyB,
-                            onValueChange = {keyB = keyValueChange(keyB, it)},
+                            onValueChange = {
+                                keyB = keyValueChange(keyB, it)
+                                playerCommands[playerIndex]!!["B"]!!.value = keyB
+                            },
                             textStyle = styleTextField,
                             modifier = modifierTextField
                         )
@@ -458,12 +498,12 @@ fun keyValueChange (
     aux = Regex("[^a-z0-9]").replace(aux, "")
 
     if (aux.isNotEmpty() && aux.matches("^[a-z0-9]*$".toRegex())) {
-        return aux.last().toString()
+        return aux.last().toString().uppercase(Locale.getDefault())
     } else if (!aux.matches("^[a-z0-9]*$".toRegex())) {
         return ""
     }
 
-    return key
+    return key.uppercase(Locale.getDefault())
 }
 
 /***********************************************************************************************/
