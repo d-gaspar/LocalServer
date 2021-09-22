@@ -1,5 +1,6 @@
 # Builds
-/build/out/*
+*.exe
+*.deb
 
 # Compiled class file
 *.class
