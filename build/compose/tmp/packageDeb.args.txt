@@ -7,11 +7,11 @@
 --java-options
 "'-Dcompose.application.resources.dir=$APPDIR/resources'"
 --main-jar
-"/home/daniel/IdeaProjects/LocalServer/build/compose/tmp/packageDeb/libs/LocalServer-1.0.0-c8474f549488a6a1936919698577a2d7.jar"
+"/home/daniel/IdeaProjects/LocalServer/build/compose/tmp/packageDeb/libs/LocalServer-1.0.0-9e9358f85315b37ff19a9f6e7139568.jar"
 --main-class
 "MainKt"
 --icon
-"/home/daniel/IdeaProjects/LocalServer/build/compose/default-icons/1.0.0-alpha4-build328/icon-linux.png"
+"/home/daniel/IdeaProjects/LocalServer/src/main/resources/desktop_icon.png"
 --java-options
 "'-Dcompose.application.configure.swing.globals=true'"
 --java-options

@@ -54,16 +54,6 @@ class Keyboard {
 
                 //var keyEvent : Int = 0
                 if (value.isNotEmpty() && playerSlot >= 0) {
-                    /*when (value) {
-                        "LEFT" -> keyEvent = KeyEvent.VK_LEFT
-                        "UP" -> keyEvent = KeyEvent.VK_UP
-                        "RIGHT" -> keyEvent = KeyEvent.VK_RIGHT
-                        "DOWN" -> keyEvent = KeyEvent.VK_DOWN
-
-                        "A" -> keyEvent = KeyEvent.VK_PAGE_UP
-                        "B" -> keyEvent = KeyEvent.VK_SPACE
-                    }*/
-                    //var keyEvent = getKeyEvent(playerCommands[0]!![value]!!.value)
                     val keyEvent = getKeyEvent(playerCommands[playerSlot]!![value]!!.value)
 
                     robot.keyPress(keyEvent)

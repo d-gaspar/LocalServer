@@ -37,8 +37,13 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
-    //kotlinOptions.jvmTarget = "16"
+    kotlinOptions.jvmTarget = "16"
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(16))
+    }
 }
 
 // desktop compose
@@ -54,7 +59,7 @@ compose.desktop {
                 TargetFormat.Deb  //TargetFormat.Rpm //Linux
             )
 
-            /*packageName = "LocalServer"
+            packageName = "LocalServer"
             packageVersion = "1.0.0"
 
             macOS {
@@ -65,7 +70,7 @@ compose.desktop {
             }
             linux {
                 iconFile.set(project.file("src/main/resources/desktop_icon.png"))
-            }*/
+            }
 
             outputBaseDir.set(project.buildDir.resolve("out"))
 

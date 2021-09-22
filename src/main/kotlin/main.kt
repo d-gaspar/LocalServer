@@ -39,9 +39,7 @@ fun main() = application {
 
     println("START WINDOW")
     val windowState = rememberWindowState()
-    //val windowSize = mutableStateOf(IntSize.Zero)
     val serverStatus = mutableStateOf("off")
-    //val jsonString = mutableStateOf("")
     Window (
         state = windowState,
         onCloseRequest = { println("close"); exitApplication() },//::exitApplication,
