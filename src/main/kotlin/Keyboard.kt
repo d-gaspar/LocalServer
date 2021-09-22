@@ -1,7 +1,6 @@
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.toUpperCase
+
 
 // coroutine
 import kotlinx.coroutines.CoroutineScope
@@ -65,7 +64,7 @@ class Keyboard {
                         "B" -> keyEvent = KeyEvent.VK_SPACE
                     }*/
                     //var keyEvent = getKeyEvent(playerCommands[0]!![value]!!.value)
-                    var keyEvent = getKeyEvent(playerCommands[playerSlot]!![value]!!.value)
+                    val keyEvent = getKeyEvent(playerCommands[playerSlot]!![value]!!.value)
 
                     robot.keyPress(keyEvent)
                     robot.keyRelease(keyEvent)
@@ -122,7 +121,6 @@ class Keyboard {
             "Z" -> KeyEvent.VK_Z
             else -> {
                 throw IOException("Keyboard.kt:getKeyEvent> key not found")
-                KeyEvent.VK_ESCAPE
             }
         }
     }

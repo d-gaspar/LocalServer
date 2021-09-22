@@ -41,7 +41,7 @@ class ThemeColors {
 
 
         @Stable
-        val playerColorList = arrayListOf<Color>(
+        val playerColorList = arrayListOf(
             Color(0xFFfb6a4a), // red
             Color(0xFF74c476), // green
             Color(0xFF43a2ca), // blue
@@ -51,7 +51,7 @@ class ThemeColors {
         )
 
         @Stable
-        val playerColorHexList = arrayListOf<String>(
+        val playerColorHexList = arrayListOf(
             "#fb6a4a", // red
             "#74c476", // green
             "#43a2ca", // blue

@@ -18,39 +18,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toUpperCase
-
-// json - jackson
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import java.awt.AWTException
-
-// coroutines
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
 import java.io.IOException
 import java.net.InetAddress
-
-// server socket
-import java.net.ServerSocket
 import java.util.*
 
 fun main() = application {
 
+    val icon = painterResource("desktop_icon.png")
+
     // server socket
     val server = Server()
     var pass by remember { mutableStateOf("123456") }
-    var passLength : Int = 6
+    val passLength = 6
 
     println("START WINDOW")
     val windowState = rememberWindowState()
@@ -60,7 +45,8 @@ fun main() = application {
     Window (
         state = windowState,
         onCloseRequest = { println("close"); exitApplication() },//::exitApplication,
-        title = "Local Server 0.1"
+        title = "Local Server 1.0.0",
+        icon = icon
     ) {
         /** resize event */
         /*LaunchedEffect(windowState) {
@@ -154,8 +140,7 @@ fun main() = application {
                         }
                     )
 
-                    Column (
-                    ) {
+                    Column {
                         text("IP: ${InetAddress.getLocalHost().hostAddress}")
 
                         Row (
@@ -288,15 +273,15 @@ fun RowScope.players (
         }
     }
 
-    var modifierTextFieldColumn : Modifier = Modifier
+    val modifierTextFieldColumn : Modifier = Modifier
         .weight(1f)
         .fillMaxSize()
         .background(Color.DarkGray)
 
-    var modifierTextField : Modifier = Modifier
+    val modifierTextField : Modifier = Modifier
         .padding(2.dp)
 
-    var styleTextField : TextStyle = TextStyle (
+    val styleTextField = TextStyle (
         color = ThemeColors.text,
         textAlign = TextAlign.Center
     )
@@ -321,7 +306,13 @@ fun RowScope.players (
                 modifier = Modifier
                     .size(10.dp)
                     .clip(CircleShape)
-                    .background(if ("off" == "off") Color.Red else Color.Green)
+                    .background(
+                        if (playerSlotsAvailable[playerIndex]!!.value) {
+                            Color.Red
+                        } else {
+                            Color.Green
+                        }
+                    )
             )
         }
 

@@ -1,4 +1,7 @@
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.runtime.mutableStateOf
+import com.fasterxml.jackson.databind.ObjectMapper
+//import com.fasterxml.jackson.databind.ObjectMapper
+//import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.CoroutineScope
@@ -12,38 +15,38 @@ import java.net.SocketException
 import java.nio.charset.Charset
 import java.util.*
 
-var playerSlotsAvailable = arrayListOf<Boolean>(true, true, true, true, true, true )
-
-val mapper = jacksonObjectMapper()
+var playerSlotsAvailable = hashMapOf(0 to mutableStateOf(true), 1 to mutableStateOf(true), 2 to mutableStateOf(true), 3 to mutableStateOf(true), 4 to mutableStateOf(true), 5 to mutableStateOf(true))
 
 data class JsonData (
     val key : String,
     val value : String
 )
 
+val mapper : ObjectMapper = jacksonObjectMapper()
+
 class Server {
     private var server : ServerSocket? = null
     private var running : Boolean = false
-    //private var jsonString : String = ""
-    private var jsonString : Pair<String, Int> = Pair("", -1)
-    public var port : Int = 8080
-    public var pass : String = "123456"
+    private var queue : LinkedList<Pair<String, Int>> = LinkedList() // [command, playerIndex]
+    private var port : Int = 8080
+    private var pass : String = "123456"
 
-    var reader : Scanner? = null
-    var writer : OutputStream? = null
+    private var writer : OutputStream? = null
 
     // keyboard
-    val keyboard : Keyboard = Keyboard()
+    private val keyboard : Keyboard = Keyboard()
 
     /*******************************************************************************************/
 
     fun run(pass : String = "123456") {
+
+
         // return if server is already running
         if (running) return
 
         server = ServerSocket(port)
         this.pass = pass
-        println("Server if running (port: ${server!!.localPort}, pass: $pass)")
+        println("Server is running (port: ${server!!.localPort}, pass: $pass)")
         running = true
 
         // read inputs
@@ -75,10 +78,9 @@ class Server {
                 println("Client connected: ${client?.inetAddress?.hostAddress}")
 
                 CoroutineScope(Dispatchers.IO).launch {
-                    println("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU1")
                     clientReaderHandler(client)
-                    println("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU2")
                 }
+
                 println("OK-clientHandler")
             } catch (e : SocketException) {
                 //e.printStackTrace()
@@ -92,20 +94,22 @@ class Server {
     /*******************************************************************************************/
 
     private fun clientReaderHandler(client : Socket) {
-        var connected : Boolean = true
+        var connected = true
 
-        reader = Scanner(client.getInputStream())
+        val reader = Scanner(client.getInputStream())
         writer = client.getOutputStream()
+        //reader = Scanner(client.getInputStream())
+        //writer = client.getOutputStream()
 
         var slotIndex : Int = -1
 
         // check password
-        var jsonStringPass : String = ""
+        val jsonStringPass: String
         try {
-            jsonStringPass = reader?.nextLine().toString()
+            jsonStringPass = reader.nextLine().toString()
 
             if (jsonStringPass.isNotEmpty()) {
-                var jsonPass : JsonData = mapper.readValue(jsonStringPass)
+                val jsonPass = mapper.readValue<JsonData>(jsonStringPass)
 
                 if (jsonPass.key != "pass" || jsonPass.value != this.pass) {
                     connected = false
@@ -126,10 +130,10 @@ class Server {
         }
 
         // send playerColor ("null" if there isn't player slot available)
-        var slotAvailable : Boolean = false
+        var slotAvailable = false
         for (slot in 0 until playerSlotsAvailable.size) {
-            if (playerSlotsAvailable[slot]) {
-                playerSlotsAvailable[slot] = false
+            if (playerSlotsAvailable[slot]!!.value) {
+                playerSlotsAvailable[slot]!!.value = false
                 slotAvailable = true
                 slotIndex = slot
                 break
@@ -142,34 +146,33 @@ class Server {
             sendJson("{\"key\":\"playerColor\",\"value\":\"null\"}\n", client) // player slot unavailable
         }
 
+        //var t : String? = null
         while (connected) {
             println("OK-clientReaderHandler")
 
             try {
-                //jsonString = reader?.nextLine().toString()
-                jsonString = Pair(reader?.nextLine().toString(), slotIndex)
+                queue.add(Pair(reader.nextLine().toString(), slotIndex))
 
-                println("INPUT: $jsonString")
-            } catch (e : Exception) {
+                println("INPUT: ${queue.last}")
+            } catch (e: Exception) {
                 connected = false
-                //e.printStackTrace()
+                e.printStackTrace()
             }
 
             Thread.sleep(1)
         }
 
         // disconnect player
-        playerSlotsAvailable[slotIndex] = true
+        playerSlotsAvailable[slotIndex]!!.value = true
     }
 
     /*******************************************************************************************/
 
     private fun sendJson (json : String, client : Socket) {
-        //CoroutineScope(Dispatchers.IO).launch {
         try {
             println("sendJson: $json")
             writer = client.getOutputStream()
-            val input = readLine() ?: ""
+            //val input = readLine() ?: ""
             writer?.write(json.toByteArray(Charset.defaultCharset()))
             writer?.flush()
             //writer?.close()
@@ -177,7 +180,6 @@ class Server {
         } catch (e : IOException) {
             e.printStackTrace()
         }
-        //}
     }
 
     /*******************************************************************************************/
@@ -185,21 +187,16 @@ class Server {
     private fun executeCommands() {
         while(running) {
 
-            //if (jsonString.isNotEmpty()) {
-                //val jsonData : JsonData = mapper.readValue(jsonString)
-            if (jsonString.first.isNotEmpty() && jsonString.second >= 0) {
-                val jsonData : JsonData = mapper.readValue(jsonString.first)
+            if (queue.size>0 && queue.first.first.isNotEmpty() && queue.first.second >= 0) {
+                val jsonData : JsonData = mapper.readValue(queue.first.first)
 
                 if(jsonData.key.isEmpty()) {
-                    //keyboard.addKey("", "")
                     keyboard.addKey("", "", -1)
                 } else {
-                    //keyboard.addKey(jsonData.key, jsonData.value)
-                    keyboard.addKey(jsonData.key, jsonData.value, jsonString.second)
+                    keyboard.addKey(jsonData.key, jsonData.value, queue.first.second)
                 }
 
-                //jsonString = ""
-                jsonString = Pair("", -1)
+                queue.remove()
             }
 
             Thread.sleep(1)

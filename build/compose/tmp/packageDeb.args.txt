@@ -7,7 +7,7 @@
 --java-options
 "'-Dcompose.application.resources.dir=$APPDIR/resources'"
 --main-jar
-"/home/daniel/IdeaProjects/LocalServer/build/compose/tmp/packageDeb/libs/LocalServer-1.0.0-cb8b62dabb551154c2ffdfe23d6695.jar"
+"/home/daniel/IdeaProjects/LocalServer/build/compose/tmp/packageDeb/libs/LocalServer-1.0.0-c8474f549488a6a1936919698577a2d7.jar"
 --main-class
 "MainKt"
 --icon
